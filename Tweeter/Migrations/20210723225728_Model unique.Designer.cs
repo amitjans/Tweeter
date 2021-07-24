@@ -10,14 +10,13 @@ using Tweeter.Models;
 namespace Tweeter.Migrations
 {
     [DbContext(typeof(tweeterContext))]
-    [Migration("20210719220429_Initial Migrations")]
-    partial class InitialMigrations
+    [Migration("20210723225728_Model unique")]
+    partial class Modelunique
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("Relational:Collation", "Spanish_Spain.1252")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63)
                 .HasAnnotation("ProductVersion", "5.0.8")
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
@@ -31,7 +30,7 @@ namespace Tweeter.Migrations
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<DateTime?>("CreatedAt")
-                        .HasColumnType("date")
+                        .HasColumnType("timestamp without time zone")
                         .HasColumnName("created_at");
 
                     b.Property<long?>("FollowedId")
@@ -48,7 +47,7 @@ namespace Tweeter.Migrations
 
                     b.HasIndex("FollowerId");
 
-                    b.ToTable("relationships");
+                    b.ToTable("Relationships");
                 });
 
             modelBuilder.Entity("Tweeter.Models.User", b =>
@@ -60,30 +59,35 @@ namespace Tweeter.Migrations
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<DateTime?>("CreatedAt")
-                        .HasColumnType("date")
+                        .HasColumnType("timestamp without time zone")
                         .HasColumnName("created_at");
 
                     b.Property<string>("Email")
+                        .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)")
                         .HasColumnName("email");
 
                     b.Property<string>("Lastname")
+                        .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)")
                         .HasColumnName("lastname");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)")
                         .HasColumnName("name");
 
                     b.Property<string>("Password")
+                        .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)")
                         .HasColumnName("password");
 
                     b.Property<string>("Username")
+                        .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)")
                         .HasColumnName("username");
@@ -94,20 +98,24 @@ namespace Tweeter.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("users");
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.HasIndex("Username")
+                        .IsUnique();
+
+                    b.ToTable("user");
                 });
 
             modelBuilder.Entity("Tweeter.Models.Relationship", b =>
                 {
                     b.HasOne("Tweeter.Models.User", "Followed")
                         .WithMany("RelationshipFolloweds")
-                        .HasForeignKey("FollowedId")
-                        .HasConstraintName("followed_id");
+                        .HasForeignKey("FollowedId");
 
                     b.HasOne("Tweeter.Models.User", "Follower")
                         .WithMany("RelationshipFollowers")
-                        .HasForeignKey("FollowerId")
-                        .HasConstraintName("follower_id");
+                        .HasForeignKey("FollowerId");
 
                     b.Navigation("Followed");
 

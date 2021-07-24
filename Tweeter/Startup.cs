@@ -1,15 +1,16 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System.Text;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.Identity;
-using Tweeter.Models;
-using Microsoft.EntityFrameworkCore;
+using System.Text;
+using System;
 using Tweeter.Configuration;
+using Tweeter.Models;
 
 namespace Tweeter
 {
@@ -31,6 +32,19 @@ namespace Tweeter
                     Configuration.GetConnectionString("DefaultConnection")
                 ));
 
+            var key = Encoding.ASCII.GetBytes(Configuration["JwtConfig:Secret"]);
+
+            var tokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(key),
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                ValidateLifetime = false,
+                RequireExpirationTime = false,
+                ClockSkew = TimeSpan.Zero
+            };
+
             services.AddAuthentication(x =>
             {
                 x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -38,19 +52,12 @@ namespace Tweeter
                 x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             }).AddJwtBearer(jwt =>
             {
-                var key = Encoding.ASCII.GetBytes(Configuration["JwtConfig:Secret"]);
                 jwt.RequireHttpsMetadata = false;
                 jwt.SaveToken = true;
-                jwt.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ValidateIssuer = false,
-                    ValidateAudience = false,
-                    RequireExpirationTime = false,
-                    ValidateLifetime = true
-                };
+                jwt.TokenValidationParameters = tokenValidationParameters;
             });
+
+            services.AddSingleton(tokenValidationParameters);
 
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                             .AddEntityFrameworkStores<tweeterContext>();
@@ -85,8 +92,6 @@ namespace Tweeter
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
             });
-
-            //app.UseAuthentication();
         }
     }
 }

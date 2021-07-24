@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Tweeter.Models;
@@ -9,9 +10,10 @@ using Tweeter.Models;
 namespace Tweeter.Migrations
 {
     [DbContext(typeof(tweeterContext))]
-    partial class tweeterContextModelSnapshot : ModelSnapshot
+    [Migration("20210724072058_Added refresh tokens table")]
+    partial class Addedrefreshtokenstable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

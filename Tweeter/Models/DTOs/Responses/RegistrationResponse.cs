@@ -6,7 +6,7 @@ using Tweeter.Configuration;
 
 namespace Tweeter.Models.DTOs.Responses
 {
-    public class RegistrationResponse : AutResult
+    public class RegistrationResponse : AuthResult
     {
     }
 }
